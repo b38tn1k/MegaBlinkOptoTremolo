@@ -1,10 +1,10 @@
-#ifndef SquareWave_h
-#define SquareWave_h
+#ifndef Wave_h
+#define Wave_h
 
-class SquareWave
+class Wave
 {
   public:
-    SquareWave();
+    Wave();
     int getSample(unsigned long _nextInflection, unsigned long _now);
     void updateWave(int _depth, double _shape);
     void tick();

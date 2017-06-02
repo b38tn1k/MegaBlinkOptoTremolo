@@ -7,7 +7,7 @@
  * 
  * Depth can be controlled by a potentionmeter connected to the LED
  * 
- * SquareWave generator moves between a 'sharp' squarewave and
+ * Wave generator moves between a 'sharp' Wave and
  * one with rounded edges. This is achieved using Proportional
  * Gain control of the sample. The rise and fall of shape has its 
  * own time constant. A high frequency tremolo with a high 'Shape'
@@ -21,19 +21,24 @@
  #define MIN_SHAPE    0.1
  #define TEMPO_PIN    A7
  #define SHAPE_PIN    A0
- #include "SquareWave.h"
+ #define DUTY_PIN     A3
+ #include "Wave.h"
  // Timer
+ unsigned long avgInterval;
  unsigned long interval;
  unsigned long nextInflection = 0;
  int bpm = 120;
  double shape = 0.0;
+ double duty = 1.0;
+ bool flip = true;
  // Wave Functions
- SquareWave sqr;
+ Wave sqr;
 void setup()
 {
   pinMode(LED_BUILTIN, OUTPUT); 
   analogWrite(LED_BUILTIN, 0);
   readPots();
+  interval = duty * avgInterval;
   Serial.begin(9600);
 }
 
@@ -46,18 +51,25 @@ void loop()
   if (nextInflection - micros() > interval) {
     // Update user changable values. Changing on inflection sort of debounces
     readPots();
+    if (flip) {
+      interval = avgInterval * duty;
+      Serial.println(duty);
+    } else {
+      interval = avgInterval * (1 - duty);
+    }
+    flip = !flip;
     nextInflection = micros() + interval;
     sqr.tick();
   }
 }
 
 void readPots() {
-  interval = bpm2Interval(analogRead(TEMPO_PIN) + MIN_BPM);
+  avgInterval = bpm2avgInterval(analogRead(TEMPO_PIN) + MIN_BPM);
   shape = double(analogRead(SHAPE_PIN)) / 1023 + MIN_SHAPE;
-  Serial.println(shape);
+  duty = double(analogRead(DUTY_PIN)) / 1023;
 }
 
-unsigned long bpm2Interval(int bpm)
+unsigned long bpm2avgInterval(int bpm)
 {
   return (60 * MICROS) / bpm;
 }

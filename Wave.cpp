@@ -1,12 +1,12 @@
-#include "SquareWave.h"
+#include "Wave.h"
 #include <math.h>
 
-SquareWave::SquareWave()
+Wave::Wave()
 {
 }
 
 
-int SquareWave::getSample(unsigned long _nextInflection, unsigned long _now)
+int Wave::getSample(unsigned long _nextInflection, unsigned long _now)
 {
   double sample = 0.0;
   if (crest) {
@@ -26,13 +26,13 @@ int SquareWave::getSample(unsigned long _nextInflection, unsigned long _now)
   return int(floor(sample));
 }
 
-void SquareWave::updateWave(int _depth, double _shape)
+void Wave::updateWave(int _depth, double _shape)
 {
   depth = _depth;
   shape = _shape / 255;
 }
 
-void SquareWave::tick()
+void Wave::tick()
 {
   crest = !crest;
 }
