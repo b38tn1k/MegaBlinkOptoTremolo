@@ -31,12 +31,16 @@
  double shape = 0.0;
  double duty = 1.0;
  bool flip = true;
+ int sample = 0;
+ unsigned long _now;
+ // Serial Timer
+ unsigned long serialInterval = 1000000/50;
+ unsigned long serialUpdate = 0;
  // Wave Functions
  Wave sqr;
 void setup()
 {
   pinMode(LED_BUILTIN, OUTPUT); 
-  analogWrite(LED_BUILTIN, 0);
   readPots();
   interval = duty * avgInterval;
   Serial.begin(9600);
@@ -44,22 +48,33 @@ void setup()
 
 void loop()
 {
-  sqr.updateWave(MAX_OUTPUT, shape);
   // write the current wave sample
-  analogWrite(LED_BUILTIN, sqr.getSample(nextInflection, micros()));
+  sample = sqr.getSample(nextInflection, _now);
+  analogWrite(LED_BUILTIN, sample);
   // update the timer
-  if (nextInflection - micros() > interval) {
+  _now = micros();
+  if (nextInflection - _now > interval) {
     // Update user changable values. Changing on inflection sort of debounces
     readPots();
     if (flip) {
       interval = avgInterval * duty;
-      Serial.println(duty);
     } else {
       interval = avgInterval * (1 - duty);
     }
     flip = !flip;
-    nextInflection = micros() + interval;
+    nextInflection = _now + interval;
     sqr.tick();
+  }
+  sqr.updateWave(MAX_OUTPUT, shape);
+//  write2Serial(sample, _now);    // THIS WILL SLOW IT DOWN A BIT BUT IS USEFUL FOR PLOTTING
+}
+
+void write2Serial(double sample, unsigned long _now) {
+  if (serialUpdate - _now > serialInterval) {
+    serialUpdate = _now + serialInterval;
+    String forSerial = String(_now);
+    forSerial = forSerial + " " + String(sample);
+    Serial.println(forSerial);
   }
 }
 
