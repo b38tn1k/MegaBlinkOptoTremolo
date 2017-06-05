@@ -12,4 +12,5 @@ The MegaBlinkOptoTremolo is named after the Arduino Blink example file. It uses 
 ![itlookslikethis](wave1.png)
 ![itlookslikethis](wave2.png)
 ![itlookslikethis](wave3.png)
+I think this is just an interference pattern with the sampling rate, not an actual waveform.
 ![itlookslikethis](wave4.png)
